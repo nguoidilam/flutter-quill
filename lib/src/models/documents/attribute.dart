@@ -51,10 +51,10 @@ class Attribute<T> {
   static const BoldAttribute bold = BoldAttribute();
 
   static final ScriptAttribute subscript =
-      ScriptAttribute(ScriptAttributes.sub);
+  ScriptAttribute(ScriptAttributes.sub);
 
   static final ScriptAttribute superscript =
-      ScriptAttribute(ScriptAttributes.sup);
+  ScriptAttribute(ScriptAttributes.sup);
 
   static const ItalicAttribute italic = ItalicAttribute();
 
@@ -116,6 +116,8 @@ class Attribute<T> {
 
   static const MentionAttribute mention = MentionAttribute(null);
 
+  static const MentionAllAttribute mentionAll = MentionAllAttribute(null);
+
   static const VideoAttribute video = VideoAttribute(null);
 
   static final Set<String> inlineKeys = {
@@ -163,6 +165,7 @@ class Attribute<T> {
     Attribute.video.key,
     Attribute.file.key,
     Attribute.mention.key,
+    Attribute.mentionAll.key,
   };
 
   static const Attribute<int?> h1 = HeaderAttribute(level: 1);
@@ -404,4 +407,8 @@ class FileAttribute extends Attribute<String?> {
 class MentionAttribute extends Attribute<String?> {
   const MentionAttribute(String? url)
       : super('mention', AttributeScope.EMBEDS, url);
+}
+
+class MentionAllAttribute extends Attribute<String?> {
+  const MentionAllAttribute(String? url) : super('mention_all', AttributeScope.EMBEDS, url);
 }
