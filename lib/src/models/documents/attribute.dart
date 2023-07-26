@@ -50,9 +50,11 @@ class Attribute<T> {
 
   static const BoldAttribute bold = BoldAttribute();
 
-  static final ScriptAttribute subscript = ScriptAttribute(ScriptAttributes.sub);
+  static final ScriptAttribute subscript =
+  ScriptAttribute(ScriptAttributes.sub);
 
-  static final ScriptAttribute superscript = ScriptAttribute(ScriptAttributes.sup);
+  static final ScriptAttribute superscript =
+  ScriptAttribute(ScriptAttributes.sup);
 
   static const ItalicAttribute italic = ItalicAttribute();
 
@@ -257,7 +259,9 @@ class Attribute<T> {
     if (identical(this, other)) return true;
     if (other is! Attribute) return false;
     final typedOther = other;
-    return key == typedOther.key && scope == typedOther.scope && value == typedOther.value;
+    return key == typedOther.key &&
+        scope == typedOther.scope &&
+        value == typedOther.value;
   }
 
   @override
@@ -306,24 +310,29 @@ class LinkAttribute extends Attribute<String?> {
 }
 
 class ColorAttribute extends Attribute<String?> {
-  const ColorAttribute(String? val) : super('color', AttributeScope.INLINE, val);
+  const ColorAttribute(String? val)
+      : super('color', AttributeScope.INLINE, val);
 }
 
 class BackgroundAttribute extends Attribute<String?> {
-  const BackgroundAttribute(String? val) : super('background', AttributeScope.INLINE, val);
+  const BackgroundAttribute(String? val)
+      : super('background', AttributeScope.INLINE, val);
 }
 
 /// This is custom attribute for hint
 class PlaceholderAttribute extends Attribute<bool> {
-  const PlaceholderAttribute() : super('placeholder', AttributeScope.INLINE, true);
+  const PlaceholderAttribute()
+      : super('placeholder', AttributeScope.INLINE, true);
 }
 
 class HeaderAttribute extends Attribute<int?> {
-  const HeaderAttribute({int? level}) : super('header', AttributeScope.BLOCK, level);
+  const HeaderAttribute({int? level})
+      : super('header', AttributeScope.BLOCK, level);
 }
 
 class IndentAttribute extends Attribute<int?> {
-  const IndentAttribute({int? level}) : super('indent', AttributeScope.BLOCK, level);
+  const IndentAttribute({int? level})
+      : super('indent', AttributeScope.BLOCK, level);
 }
 
 class AlignAttribute extends Attribute<String?> {
@@ -343,19 +352,23 @@ class BlockQuoteAttribute extends Attribute<bool> {
 }
 
 class DirectionAttribute extends Attribute<String?> {
-  const DirectionAttribute(String? val) : super('direction', AttributeScope.BLOCK, val);
+  const DirectionAttribute(String? val)
+      : super('direction', AttributeScope.BLOCK, val);
 }
 
 class WidthAttribute extends Attribute<String?> {
-  const WidthAttribute(String? val) : super('width', AttributeScope.IGNORE, val);
+  const WidthAttribute(String? val)
+      : super('width', AttributeScope.IGNORE, val);
 }
 
 class HeightAttribute extends Attribute<String?> {
-  const HeightAttribute(String? val) : super('height', AttributeScope.IGNORE, val);
+  const HeightAttribute(String? val)
+      : super('height', AttributeScope.IGNORE, val);
 }
 
 class StyleAttribute extends Attribute<String?> {
-  const StyleAttribute(String? val) : super('style', AttributeScope.IGNORE, val);
+  const StyleAttribute(String? val)
+      : super('style', AttributeScope.IGNORE, val);
 }
 
 class TokenAttribute extends Attribute<String> {
@@ -363,7 +376,8 @@ class TokenAttribute extends Attribute<String> {
 }
 
 class ScriptAttribute extends Attribute<String?> {
-  ScriptAttribute(ScriptAttributes? val) : super('script', AttributeScope.INLINE, val?.value);
+  ScriptAttribute(ScriptAttributes? val)
+      : super('script', AttributeScope.INLINE, val?.value);
 }
 
 enum ScriptAttributes {
@@ -376,19 +390,23 @@ enum ScriptAttributes {
 }
 
 class ImageAttribute extends Attribute<String?> {
-  const ImageAttribute(String? url) : super('img', AttributeScope.EMBEDS, url);
+  const ImageAttribute(String? url)
+      : super('img', AttributeScope.EMBEDS, url);
 }
 
 class VideoAttribute extends Attribute<String?> {
-  const VideoAttribute(String? url) : super('video', AttributeScope.EMBEDS, url);
+  const VideoAttribute(String? url)
+      : super('video', AttributeScope.EMBEDS, url);
 }
 
 class FileAttribute extends Attribute<String?> {
-  const FileAttribute(String? url) : super('file', AttributeScope.EMBEDS, url);
+  const FileAttribute(String? url)
+      : super('file', AttributeScope.EMBEDS, url);
 }
 
 class MentionAttribute extends Attribute<String?> {
-  const MentionAttribute(String? url) : super('mention', AttributeScope.EMBEDS, url);
+  const MentionAttribute(String? url)
+      : super('mention', AttributeScope.EMBEDS, url);
 }
 
 class MentionAllAttribute extends Attribute<String?> {
