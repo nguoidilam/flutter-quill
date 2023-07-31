@@ -212,19 +212,7 @@ class EditableTextBlock extends StatelessWidget {
       );
     }
 
-    if (attrs.containsKey(Attribute.codeBlock.key)) {
-      return QuillNumberPoint(
-        index: index,
-        indentLevelCounts: indentLevelCounts,
-        count: count,
-        style: defaultStyles!.code!.style
-            .copyWith(color: defaultStyles.code!.style.color!.withOpacity(0.4)),
-        width: 32,
-        attrs: attrs,
-        padding: 16,
-        withDot: false,
-      );
-    }
+    if (attrs.containsKey(Attribute.codeBlock.key)) {}
     return null;
   }
 
@@ -235,6 +223,10 @@ class EditableTextBlock extends StatelessWidget {
     var extraIndent = 0.0;
     if (indent != null && indent.value != null) {
       extraIndent = 16.0 * indent.value;
+    }
+
+    if (attrs.containsKey(Attribute.codeBlock.key)) {
+      return 0;
     }
 
     if (attrs.containsKey(Attribute.blockQuote.key)) {
