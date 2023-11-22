@@ -24,11 +24,13 @@ abstract class EmbedBuilder {
     leaf.Embed node,
     bool readOnly,
     bool inline,
+    TextStyle textStyle,
   );
 }
 
 typedef EmbedButtonBuilder = Widget Function(
-    QuillController controller,
-    double toolbarIconSize,
-    QuillIconTheme? iconTheme,
-    QuillDialogTheme? dialogTheme);
+  QuillController controller,
+  double toolbarIconSize,
+  QuillIconTheme? iconTheme,
+  QuillDialogTheme? dialogTheme,
+);

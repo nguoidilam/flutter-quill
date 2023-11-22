@@ -1,9 +1,21 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show Diagnosticable;
+import 'package:flutter/material.dart'
+    show
+        BoxConstraints,
+        ButtonStyle,
+        Color,
+        EdgeInsets,
+        EdgeInsetsGeometry,
+        ShapeBorder,
+        TextStyle;
+import 'package:meta/meta.dart' show immutable;
 
 /// Used to configure the dialog's look and feel.
+
+@immutable
 class QuillDialogTheme with Diagnosticable {
   const QuillDialogTheme({
+    this.buttonTextStyle,
     this.labelTextStyle,
     this.inputTextStyle,
     this.dialogBackgroundColor,
@@ -16,6 +28,9 @@ class QuillDialogTheme with Diagnosticable {
     this.isWrappable = false,
     this.runSpacing = 8.0,
   }) : assert(runSpacing >= 0);
+
+  ///The text style to use for the button shown in the dialog
+  final TextStyle? buttonTextStyle;
 
   ///The text style to use for the label shown in the link-input dialog
   final TextStyle? labelTextStyle;
@@ -59,6 +74,7 @@ class QuillDialogTheme with Diagnosticable {
   final double runSpacing;
 
   QuillDialogTheme copyWith({
+    TextStyle? buttonTextStyle,
     TextStyle? labelTextStyle,
     TextStyle? inputTextStyle,
     Color? dialogBackgroundColor,
@@ -72,6 +88,7 @@ class QuillDialogTheme with Diagnosticable {
     double? runSpacing,
   }) {
     return QuillDialogTheme(
+      buttonTextStyle: buttonTextStyle ?? this.buttonTextStyle,
       labelTextStyle: labelTextStyle ?? this.labelTextStyle,
       inputTextStyle: inputTextStyle ?? this.inputTextStyle,
       dialogBackgroundColor:
@@ -96,6 +113,7 @@ class QuillDialogTheme with Diagnosticable {
       return false;
     }
     return other is QuillDialogTheme &&
+        other.buttonTextStyle == buttonTextStyle &&
         other.labelTextStyle == labelTextStyle &&
         other.inputTextStyle == inputTextStyle &&
         other.dialogBackgroundColor == dialogBackgroundColor &&
@@ -112,6 +130,7 @@ class QuillDialogTheme with Diagnosticable {
 
   @override
   int get hashCode => Object.hash(
+        buttonTextStyle,
         labelTextStyle,
         inputTextStyle,
         dialogBackgroundColor,

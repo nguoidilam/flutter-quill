@@ -78,9 +78,9 @@ class Document {
       return Delta();
     }
 
-    final delta = _rules.apply(RuleType.INSERT, this, index,
+    final delta = _rules.apply(RuleType.insert, this, index,
         data: data, len: replaceLength);
-    compose(delta, ChangeSource.LOCAL);
+    compose(delta, ChangeSource.local);
     return delta;
   }
 
@@ -92,9 +92,9 @@ class Document {
   /// Returns an instance of [Delta] actually composed into this document.
   Delta delete(int index, int len) {
     assert(index >= 0 && len > 0);
-    final delta = _rules.apply(RuleType.DELETE, this, index, len: len);
+    final delta = _rules.apply(RuleType.delete, this, index, len: len);
     if (delta.isNotEmpty) {
-      compose(delta, ChangeSource.LOCAL);
+      compose(delta, ChangeSource.local);
     }
     return delta;
   }
@@ -142,10 +142,10 @@ class Document {
 
     var delta = Delta();
 
-    final formatDelta = _rules.apply(RuleType.FORMAT, this, index,
+    final formatDelta = _rules.apply(RuleType.format, this, index,
         len: len, attribute: attribute);
     if (formatDelta.isNotEmpty) {
-      compose(formatDelta, ChangeSource.LOCAL);
+      compose(formatDelta, ChangeSource.local);
       delta = delta.compose(formatDelta);
     }
 
@@ -156,13 +156,35 @@ class Document {
   /// included in the result.
   Style collectStyle(int index, int len) {
     final res = queryChild(index);
-    return (res.node as Line).collectStyle(res.offset, len);
+    Style rangeStyle;
+    if (len > 0) {
+      return (res.node as Line).collectStyle(res.offset, len);
+    }
+    if (res.offset == 0) {
+      rangeStyle = (res.node as Line).collectStyle(res.offset, len);
+      return rangeStyle.removeAll({
+        for (final attr in rangeStyle.values)
+          if (attr.isInline) attr
+      });
+    }
+    rangeStyle = (res.node as Line).collectStyle(res.offset - 1, len);
+    final linkAttribute = rangeStyle.attributes[Attribute.link.key];
+    if ((linkAttribute != null) &&
+        (linkAttribute.value !=
+            (res.node as Line)
+                .collectStyle(res.offset, len)
+                .attributes[Attribute.link.key]
+                ?.value)) {
+      return rangeStyle.removeAll({linkAttribute});
+    }
+    return rangeStyle;
   }
 
-  /// Returns all styles for each node within selection
-  List<OffsetValue<Style>> collectAllIndividualStyles(int index, int len) {
+  /// Returns all styles and Embed for each node within selection
+  List<OffsetValue> collectAllIndividualStyleAndEmbed(int index, int len) {
     final res = queryChild(index);
-    return (res.node as Line).collectAllIndividualStyles(res.offset, len);
+    return (res.node as Line)
+        .collectAllIndividualStylesAndEmbed(res.offset, len);
   }
 
   /// Returns all styles for any character within the specified text range.
@@ -194,16 +216,21 @@ class Document {
     return block.queryChild(res.offset, true);
   }
 
-  /// Search the whole document for any substring matching the pattern
-  /// Returns the offsets that matches the pattern
-  List<int> search(Pattern other) {
+  /// Search given [substring] in the whole document
+  /// Supports [caseSensitive] and [wholeWord] options
+  /// Returns correspondent offsets
+  List<int> search(
+    String substring, {
+    bool caseSensitive = false,
+    bool wholeWord = false,
+  }) {
     final matches = <int>[];
     for (final node in _root.children) {
       if (node is Line) {
-        _searchLine(other, node, matches);
+        _searchLine(substring, caseSensitive, wholeWord, node, matches);
       } else if (node is Block) {
         for (final line in Iterable.castFrom<dynamic, Line>(node.children)) {
-          _searchLine(other, line, matches);
+          _searchLine(substring, caseSensitive, wholeWord, line, matches);
         }
       } else {
         throw StateError('Unreachable.');
@@ -212,10 +239,22 @@ class Document {
     return matches;
   }
 
-  void _searchLine(Pattern other, Line line, List<int> matches) {
+  void _searchLine(
+    String substring,
+    bool caseSensitive,
+    bool wholeWord,
+    Line line,
+    List<int> matches,
+  ) {
     var index = -1;
+    final lineText = line.toPlainText();
+    var pattern = RegExp.escape(substring);
+    if (wholeWord) {
+      pattern = r'\b' + pattern + r'\b';
+    }
+    final searchExpression = RegExp(pattern, caseSensitive: caseSensitive);
     while (true) {
-      index = line.toPlainText().indexOf(other, index + 1);
+      index = lineText.indexOf(searchExpression, index + 1);
       if (index < 0) {
         break;
       }
@@ -274,11 +313,11 @@ class Document {
     try {
       _delta = _delta.compose(delta);
     } catch (e) {
-      throw '_delta compose failed';
+      throw StateError('_delta compose failed');
     }
 
     if (_delta != _root.toDelta()) {
-      throw 'Compose failed';
+      throw StateError('Compose failed');
     }
     final change = DocChange(originalDelta, delta, changeSource);
     _observer.add(change);
@@ -406,8 +445,8 @@ class Document {
 /// Source of a [Change].
 enum ChangeSource {
   /// Change originated from a local action. Typically triggered by user.
-  LOCAL,
+  local,
 
   /// Change originated from a remote action.
-  REMOTE,
+  remote,
 }

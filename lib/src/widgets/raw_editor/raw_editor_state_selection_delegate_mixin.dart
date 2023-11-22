@@ -4,60 +4,79 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../models/documents/document.dart';
+import '../../models/documents/nodes/embeddable.dart';
 import '../../models/documents/nodes/leaf.dart';
+import '../../models/documents/style.dart';
 import '../../utils/delta.dart';
-import '../editor.dart';
+import '../editor/editor.dart';
 
 mixin RawEditorStateSelectionDelegateMixin on EditorState
     implements TextSelectionDelegate {
   @override
   TextEditingValue get textEditingValue {
-    return widget.controller.plainTextEditingValue;
+    return widget.configurations.controller.plainTextEditingValue;
   }
 
   set textEditingValue(TextEditingValue value) {
     final cursorPosition = value.selection.extentOffset;
-    final oldText = widget.controller.document.toPlainText();
+    final oldText = widget.configurations.controller.document.toPlainText();
     final newText = value.text;
     final diff = getDiff(oldText, newText, cursorPosition);
     if (diff.deleted == '' && diff.inserted == '') {
       // Only changing selection range
-      widget.controller.updateSelection(value.selection, ChangeSource.LOCAL);
+      widget.configurations.controller
+          .updateSelection(value.selection, ChangeSource.local);
       return;
     }
 
-    final insertedText = _adjustInsertedText(diff.inserted);
+    var insertedText = diff.inserted;
+    final containsEmbed =
+        insertedText.codeUnits.contains(Embed.kObjectReplacementInt);
+    insertedText =
+        containsEmbed ? _adjustInsertedText(diff.inserted) : diff.inserted;
 
-    widget.controller.replaceText(
+    widget.configurations.controller.replaceText(
         diff.start, diff.deleted.length, insertedText, value.selection);
 
-    _applyPasteStyle(insertedText, diff.start);
+    _applyPasteStyleAndEmbed(insertedText, diff.start, containsEmbed);
   }
 
-  void _applyPasteStyle(String insertedText, int start) {
-    if (insertedText == pastePlainText && pastePlainText != '') {
+  void _applyPasteStyleAndEmbed(
+      String insertedText, int start, bool containsEmbed) {
+    if (insertedText == pastePlainText && pastePlainText != '' ||
+        containsEmbed) {
       final pos = start;
-      for (var i = 0; i < pasteStyle.length; i++) {
-        final offset = pasteStyle[i].offset;
-        final style = pasteStyle[i].value;
-        widget.controller.formatTextStyle(
-            pos + offset,
-            i == pasteStyle.length - 1
-                ? pastePlainText.length - offset
-                : pasteStyle[i + 1].offset,
-            style);
+      for (var i = 0; i < pasteStyleAndEmbed.length; i++) {
+        final offset = pasteStyleAndEmbed[i].offset;
+        final styleAndEmbed = pasteStyleAndEmbed[i].value;
+
+        final local = pos + offset;
+        if (styleAndEmbed is Embeddable) {
+          widget.configurations.controller
+              .replaceText(local, 0, styleAndEmbed, null);
+        } else {
+          final style = styleAndEmbed as Style;
+          if (style.isInline) {
+            widget.configurations.controller
+                .formatTextStyle(local, pasteStyleAndEmbed[i].length!, style);
+          } else if (style.isBlock) {
+            final node = widget.configurations.controller.document
+                .queryChild(local)
+                .node;
+            if (node != null &&
+                pasteStyleAndEmbed[i].length == node.length - 1) {
+              for (final attribute in style.values) {
+                widget.configurations.controller.document
+                    .format(local, 0, attribute);
+              }
+            }
+          }
+        }
       }
     }
   }
 
   String _adjustInsertedText(String text) {
-    // For clip from editor, it may contain image, a.k.a 65532 or '\uFFFC'.
-    // For clip from browser, image is directly ignore.
-    // Here we skip image when pasting.
-    if (!text.codeUnits.contains(Embed.kObjectReplacementInt)) {
-      return text;
-    }
-
     final sb = StringBuffer();
     for (var i = 0; i < text.length; i++) {
       if (text.codeUnitAt(i) == Embed.kObjectReplacementInt) {
@@ -150,15 +169,18 @@ mixin RawEditorStateSelectionDelegateMixin on EditorState
   }
 
   @override
-  bool get cutEnabled => widget.contextMenuBuilder != null && !widget.readOnly;
+  bool get cutEnabled =>
+      widget.configurations.contextMenuBuilder != null &&
+      !widget.configurations.isReadOnly;
 
   @override
-  bool get copyEnabled => widget.contextMenuBuilder != null;
+  bool get copyEnabled => widget.configurations.contextMenuBuilder != null;
 
   @override
   bool get pasteEnabled =>
-      widget.contextMenuBuilder != null && !widget.readOnly;
+      widget.configurations.contextMenuBuilder != null &&
+      !widget.configurations.isReadOnly;
 
   @override
-  bool get selectAllEnabled => widget.contextMenuBuilder != null;
+  bool get selectAllEnabled => widget.configurations.contextMenuBuilder != null;
 }

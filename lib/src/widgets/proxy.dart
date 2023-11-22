@@ -6,8 +6,12 @@ import 'package:flutter/widgets.dart';
 import 'box.dart';
 
 class BaselineProxy extends SingleChildRenderObjectWidget {
-  const BaselineProxy({Key? key, Widget? child, this.textStyle, this.padding})
-      : super(key: key, child: child);
+  const BaselineProxy({
+    super.key,
+    super.child,
+    this.textStyle,
+    this.padding,
+  });
 
   final TextStyle? textStyle;
   final EdgeInsets? padding;
@@ -32,15 +36,14 @@ class BaselineProxy extends SingleChildRenderObjectWidget {
 
 class RenderBaselineProxy extends RenderProxyBox {
   RenderBaselineProxy(
-    RenderParagraph? child,
+    RenderParagraph? super.child,
     TextStyle textStyle,
     EdgeInsets? padding,
-  )   : _prototypePainter = TextPainter(
+  ) : _prototypePainter = TextPainter(
             text: TextSpan(text: ' ', style: textStyle),
             textDirection: TextDirection.ltr,
             strutStyle:
-                StrutStyle.fromTextStyle(textStyle, forceStrutHeight: true)),
-        super(child);
+                StrutStyle.fromTextStyle(textStyle, forceStrutHeight: true));
 
   final TextPainter _prototypePainter;
 
@@ -75,7 +78,7 @@ class RenderBaselineProxy extends RenderProxyBox {
 }
 
 class EmbedProxy extends SingleChildRenderObjectWidget {
-  const EmbedProxy(Widget child) : super(child: child);
+  const EmbedProxy(Widget child, {super.key}) : super(child: child);
 
   @override
   RenderEmbedProxy createRenderObject(BuildContext context) =>
@@ -83,7 +86,7 @@ class EmbedProxy extends SingleChildRenderObjectWidget {
 }
 
 class RenderEmbedProxy extends RenderProxyBox implements RenderContentProxyBox {
-  RenderEmbedProxy(RenderBox? child) : super(child);
+  RenderEmbedProxy(super.child);
 
   @override
   List<TextBox> getBoxesForSelection(TextSelection selection) {
@@ -126,23 +129,24 @@ class RenderEmbedProxy extends RenderProxyBox implements RenderContentProxyBox {
 
 class RichTextProxy extends SingleChildRenderObjectWidget {
   /// Child argument should be an instance of RichText widget.
-  const RichTextProxy(
-      {required RichText child,
-      required this.textStyle,
-      required this.textAlign,
-      required this.textDirection,
-      required this.locale,
-      required this.strutStyle,
-      this.textScaleFactor = 1.0,
-      this.textWidthBasis = TextWidthBasis.parent,
-      this.textHeightBehavior,
-      Key? key})
-      : super(key: key, child: child);
+  const RichTextProxy({
+    required RichText super.child,
+    required this.textStyle,
+    required this.textAlign,
+    required this.textDirection,
+    required this.locale,
+    required this.strutStyle,
+    // TODO: This might needs to be updated, previous value was 1.0 using `textScaleFactor`
+    this.textScaler = const TextScaler.linear(1),
+    this.textWidthBasis = TextWidthBasis.parent,
+    this.textHeightBehavior,
+    super.key,
+  });
 
   final TextStyle textStyle;
   final TextAlign textAlign;
   final TextDirection textDirection;
-  final double textScaleFactor;
+  final TextScaler textScaler;
   final Locale locale;
   final StrutStyle strutStyle;
   final TextWidthBasis textWidthBasis;
@@ -150,16 +154,8 @@ class RichTextProxy extends SingleChildRenderObjectWidget {
 
   @override
   RenderParagraphProxy createRenderObject(BuildContext context) {
-    return RenderParagraphProxy(
-        null,
-        textStyle,
-        textAlign,
-        textDirection,
-        textScaleFactor,
-        strutStyle,
-        locale,
-        textWidthBasis,
-        textHeightBehavior);
+    return RenderParagraphProxy(null, textStyle, textAlign, textDirection,
+        textScaler, strutStyle, locale, textWidthBasis, textHeightBehavior);
   }
 
   @override
@@ -169,7 +165,7 @@ class RichTextProxy extends SingleChildRenderObjectWidget {
       ..textStyle = textStyle
       ..textAlign = textAlign
       ..textDirection = textDirection
-      ..textScaleFactor = textScaleFactor
+      ..textScaler = textScaler
       ..locale = locale
       ..strutStyle = strutStyle
       ..textWidthBasis = textWidthBasis
@@ -180,25 +176,25 @@ class RichTextProxy extends SingleChildRenderObjectWidget {
 class RenderParagraphProxy extends RenderProxyBox
     implements RenderContentProxyBox {
   RenderParagraphProxy(
-    RenderParagraph? child,
+    RenderParagraph? super.child,
     TextStyle textStyle,
     TextAlign textAlign,
     TextDirection textDirection,
-    double textScaleFactor,
+    TextScaler textScaler,
     StrutStyle strutStyle,
     Locale locale,
     TextWidthBasis textWidthBasis,
     TextHeightBehavior? textHeightBehavior,
-  )   : _prototypePainter = TextPainter(
-            text: TextSpan(text: ' ', style: textStyle),
-            textAlign: textAlign,
-            textDirection: textDirection,
-            textScaleFactor: textScaleFactor,
-            strutStyle: strutStyle,
-            locale: locale,
-            textWidthBasis: textWidthBasis,
-            textHeightBehavior: textHeightBehavior),
-        super(child);
+  ) : _prototypePainter = TextPainter(
+          text: TextSpan(text: ' ', style: textStyle),
+          textAlign: textAlign,
+          textDirection: textDirection,
+          textScaler: textScaler,
+          strutStyle: strutStyle,
+          locale: locale,
+          textWidthBasis: textWidthBasis,
+          textHeightBehavior: textHeightBehavior,
+        );
 
   final TextPainter _prototypePainter;
 
@@ -226,11 +222,11 @@ class RenderParagraphProxy extends RenderProxyBox
     markNeedsLayout();
   }
 
-  set textScaleFactor(double value) {
-    if (_prototypePainter.textScaleFactor == value) {
+  set textScaler(TextScaler value) {
+    if (_prototypePainter.textScaler == value) {
       return;
     }
-    _prototypePainter.textScaleFactor = value;
+    _prototypePainter.textScaler = value;
     markNeedsLayout();
   }
 
