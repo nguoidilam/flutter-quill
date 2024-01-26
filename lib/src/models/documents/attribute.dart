@@ -117,6 +117,8 @@ class Attribute<T> extends Equatable {
 
   static const MentionAllAttribute mentionAll = MentionAllAttribute(null);
 
+  static const EmbedLinkAttribute embedLink = EmbedLinkAttribute(null);
+
   static const VideoAttribute video = VideoAttribute(null);
 
   static final Set<String> inlineKeys = {
@@ -165,6 +167,7 @@ class Attribute<T> extends Equatable {
     Attribute.file.key,
     Attribute.mention.key,
     Attribute.mentionAll.key,
+    Attribute.embedLink.key,
   };
 
   static const Attribute<int?> h1 = HeaderAttribute(level: 1);
@@ -415,4 +418,8 @@ class MentionAttribute extends Attribute<String?> {
 
 class MentionAllAttribute extends Attribute<String?> {
   const MentionAllAttribute(String? url) : super('mention_all', AttributeScope.embeds, url);
+}
+
+class EmbedLinkAttribute extends Attribute<String?> {
+  const EmbedLinkAttribute(String? url) : super('embed_link', AttributeScope.embeds, url);
 }
