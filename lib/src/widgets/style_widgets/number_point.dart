@@ -54,14 +54,20 @@ class QuillEditorNumberPoint extends StatelessWidget {
     indentLevelCounts[level] = count;
 
     s = count.toString();
-    if (level % 3 == 1) {
+    if (level % 5 == 1) {
+      // A. B. C. D. E. ...
+      s = _toExcelSheetColumnTitle(count).toUpperCase();
+    } else if (level % 5 == 2) {
       // a. b. c. d. e. ...
       s = _toExcelSheetColumnTitle(count);
-    } else if (level % 3 == 2) {
+    } else if (level % 5 == 3) {
+      // I. II. III. ...
+      s = _intToRoman(count).toUpperCase();
+    } else if (level % 5 == 4) {
       // i. ii. iii. ...
       s = _intToRoman(count);
     }
-    // level % 3 == 0 goes back to 1. 2. 3.
+    // level % 5 == 0 goes back to 1. 2. 3.
 
     return Container(
       alignment: AlignmentDirectional.topEnd,
@@ -93,14 +99,11 @@ class QuillEditorNumberPoint extends StatelessWidget {
 
     final builder = StringBuffer();
     for (var a = 0; a < arabianRomanNumbers.length; a++) {
-      final times = (num / arabianRomanNumbers[a])
-          .truncate(); // equals 1 only when arabianRomanNumbers[a] = num
+      final times = (num / arabianRomanNumbers[a]).truncate(); // equals 1 only when arabianRomanNumbers[a] = num
       // executes n times where n is the number of times you have to add
       // the current roman number value to reach current num.
       builder.write(romanNumbers[a] * times);
-      num -= times *
-          arabianRomanNumbers[
-              a]; // subtract previous roman number value from num
+      num -= times * arabianRomanNumbers[a]; // subtract previous roman number value from num
     }
 
     return builder.toString().toLowerCase();
