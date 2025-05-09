@@ -55,7 +55,11 @@ dependencies:
   url_launcher: ^6.1.14
   flutter_keyboard_visibility: ^5.4.1
   device_info_plus: ^9.1.0
-  pasteboard: 0.4.0
+  pasteboard:
+   git:
+    url: https://github.com/nguoidilam/flutter-plugins.git
+    path: packages/pasteboard
+    ref: luklak
 
 dev_dependencies:
   flutter_lints: ^3.0.1
