@@ -373,7 +373,7 @@ class _LinkDialogState extends State<_LinkDialog> {
 
   void _applyLink() {
     if (_link.startsWith("https") || _link.startsWith("http")) {
-      _link = 'https$_link';
+      _link = 'https://$_link';
     }
     Navigator.pop(context, _TextLink(_text.trim(), _link.trim()));
   }
